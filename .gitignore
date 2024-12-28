@@ -8,6 +8,11 @@ __pycache__/
 *.mp4
 *.avi
 
+#virtual env
+headvenv/
+
+
+
 # Distribution / packaging
 .Python
 build/
