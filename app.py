@@ -29,18 +29,22 @@ class MainWindow(QMainWindow):
         central_widget.setLayout(v_layout)
         self.setCentralWidget(central_widget)
 
+        self.new_window = NewWindow()
+        self.new_window.back_signal.connect(self.show)
+
     def open_new_window(self):
         new_window = NewWindow()
         new_window.exec()  # Use exec() to make it a modal dialog
     
     def open_coordinates_window(self):
-        new_window = NewWindow()
-        new_window.exec()
         try:
             python_path = "D:\\headdatset\\headvenv\\Scripts\\python.exe"
             subprocess.Popen([python_path, "coordinates.py"])  # Run coordinates.py
             self.hide() # Hide main window
             self.new_window.exec()  # Show the dialog (still needed)
+            
+            # new_window = NewWindow()
+            # new_window.exec()
 
         except FileNotFoundError:
             QMessageBox.critical(self, "Error", "coordinates.py not found.") # Error message box
