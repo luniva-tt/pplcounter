@@ -1,5 +1,6 @@
 import cv2
 import json 
+import sys
 
 # Initialize a list to store the clicked coordinates
 coordinates = []
@@ -12,12 +13,21 @@ def click_event(event, x, y, flags, param):
         # Draw a circle on the clicked point to visualize the click
         cv2.circle(param, (x, y), 5, (0, 255, 0), -1)  # Update the frame with the circle
 
+if len(sys.argv) > 1:  # Check if a feed argument was passed
+    feed = sys.argv[1]
+    print("argg recieved", int(feed))
+    cap = cv2.VideoCapture(int(feed))  # Use the feed from the argument
+else:
+    cap = cv2.VideoCapture(0)
+     
+
 # Open the video file
-cap = cv2.VideoCapture(0)
+# cap = cv2.VideoCapture(0)
 
 # Display the first frame to create the window
 ret, frame = cap.read()
 if not ret:
+    # print(feed)
     print("Failed to open video")
     cap.release()
     cv2.destroyAllWindows()
@@ -42,7 +52,7 @@ while True:
     # if len(coordinates) == 4:
     #     print(f"Coordinates: {coordinates}")
     #     break
-    if len(coordinates) == 4:
+    if len(coordinates) == 2:
         print(json.dumps(coordinates))  # Send coordinates as JSON string
         break
 

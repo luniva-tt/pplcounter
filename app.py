@@ -1,9 +1,10 @@
-import sys
+import sys 
+import os
 import subprocess
 import threading
 import json # For sending data
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QPushButton, QVBoxLayout,
-                             QWidget, QLabel, QDialog, QMessageBox)
+                             QWidget,QLineEdit, QLabel, QDialog, QMessageBox)
 from PyQt6.QtCore import pyqtSignal, QObject
 
 class MainWindow(QMainWindow):
@@ -22,6 +23,11 @@ class MainWindow(QMainWindow):
         self.label = QLabel("Hello!")
         self.button = QPushButton("Set Coordinates")
         self.button.clicked.connect(self.open_coordinates_window)
+
+        self.feed_input = QLineEdit()  # Create the QLineEdit widget
+        self.feed_input.setPlaceholderText("Enter your feed (e.g., 0 for webcam, or video file path)")  # Placeholder text
+        main_layout.addWidget(self.feed_input)  # Add it to the layout
+
 
         main_layout.addWidget(self.label)
         main_layout.addWidget(self.button)
@@ -43,9 +49,16 @@ class MainWindow(QMainWindow):
     #     new_window.exec()  # Use exec() to make it a modal dialog
     
     def open_coordinates_window(self):
+        feed = self.feed_input.text().strip()
+        if not feed:
+            QMessageBox.critical(self, "Error", "Please enter a feed (0 for webcam or video path).")
+            return
         try:
+
             python_path = "D:\\headdatset\\headvenv\\Scripts\\python.exe"
-            process = subprocess.Popen([python_path, "coordinates.py"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)  # Run coordinates.py
+
+            my_env = os.environ.copy() 
+            process = subprocess.Popen([python_path, "coordinates.py",feed], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=my_env)  # Run coordinates.py
             self.hide() # Hide main window
             self.new_window.exec()  # Show the dialog (still needed)
             
@@ -60,13 +73,13 @@ class MainWindow(QMainWindow):
                 try:
                     # Attempt to parse as JSON. If it fails, it's not the coordinates output.
                     data = json.loads(line) # Coordinates are sent as JSON
-                    if isinstance(data, list) and len(data) == 4 and all(isinstance(point, list) and len(point) == 2 for point in data): # Check if it is in the correct format
+                    if isinstance(data, list) and len(data) == 2 and all(isinstance(point, list) and len(point) == 2 for point in data): # Check if it is in the correct format
                         print("Received coordinates:", data)
                         self.new_window.coordinates_received.emit(data) # Emit the signal with the coordinates
                     else:
-                        print(isinstance(data, list))
-                        print(len(data))
-                        all(isinstance(point, list) and len(point) == 2 for point in data)
+                        # print(isinstance(data, list))
+                        # print(len(data))
+                        # all(isinstance(point, list) and len(point) == 2 for point in data)
                         
                         print("else coordinates.py (stdout):", line) # Print other output
                         self.new_window.output_label.setText(line) # Example: put the output in the dialog label
