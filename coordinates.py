@@ -1,4 +1,5 @@
 import cv2
+import json 
 
 # Initialize a list to store the clicked coordinates
 coordinates = []
@@ -7,12 +8,12 @@ coordinates = []
 def click_event(event, x, y, flags, param):
     if event == cv2.EVENT_LBUTTONDOWN:
         coordinates.append((x, y))  # Append the coordinates of the click
-        print(f"Clicked at: ({x}, {y})")  # Print the coordinates on the console
+        # print(f"Clicked at: ({x}, {y})")  # Print the coordinates on the console
         # Draw a circle on the clicked point to visualize the click
         cv2.circle(param, (x, y), 5, (0, 255, 0), -1)  # Update the frame with the circle
 
 # Open the video file
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 
 # Display the first frame to create the window
 ret, frame = cap.read()
@@ -38,8 +39,11 @@ while True:
     cv2.imshow('Video', frame)
 
     # Wait until the user clicks 4 times
+    # if len(coordinates) == 4:
+    #     print(f"Coordinates: {coordinates}")
+    #     break
     if len(coordinates) == 4:
-        print(f"Coordinates: {coordinates}")
+        print(json.dumps(coordinates))  # Send coordinates as JSON string
         break
 
     # Wait for key press to proceed to the next frame
